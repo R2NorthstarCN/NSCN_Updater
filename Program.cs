@@ -2,34 +2,38 @@
 using System.Diagnostics;
 
 bool repair = false;
+string workdir = string.Empty;
 
-foreach (var arg in args)
+for (int i = 0; i < args.Length; i++)
 {
-	if (arg == "-repair")
+	if (args[i] == "-repair")
 		repair = true;
+	else if (args[i] == "-workdir")
+		workdir = args[++i];
 }
 
+if (workdir == string.Empty)
+{
+	workdir = System.IO.Directory.GetCurrentDirectory();
+	var temp = Path.GetTempPath();
+	File.Copy(workdir + "\\NSCN_Updater.exe", temp + "\\NSCN_Updater.exe", true);
 
-var workdir = System.IO.Directory.GetCurrentDirectory();
+	var files = Directory.GetFiles(workdir, "*git*.dll");
+
+	foreach (var file in files)
+	{
+		var filename = Path.GetFileName(file);
+		File.Copy(file, temp + "\\" + filename, true);
+	}
+	string sub_args = "-workdir " + workdir;
+	if (repair)
+		sub_args += " -repair";
+	Process.Start(temp + "\\NSCN_Updater.exe", sub_args);
+	Environment.Exit(0);
+}
 
 var path = workdir;
 var url = "https://gitee.com/st0n1e/NSCN_Launcher.git";
-
-if (repair)
-{
-	try
-	{
-		if (Directory.Exists(workdir + "\\.git"))
-		{
-			Directory.Delete(workdir + "\\.git", true);
-		}
-	}
-	catch { }
-	finally
-	{
-		Console.WriteLine("修复完毕！");
-	}
-}
 
 if (!Repository.IsValid(path))
 {
@@ -44,6 +48,13 @@ if (!Repository.IsValid(path))
 
 using (var repo = new Repository(path))
 {
+	if (repair)
+	{
+		repo.Reset(ResetMode.Hard, @"origin/master");
+		Console.WriteLine("修复完毕！");
+		Thread.Sleep(2000);
+		Environment.Exit(0);
+	}
 	var options = new FetchOptions();
 
 	options.Prune = true;
@@ -77,6 +88,8 @@ using (var repo = new Repository(path))
 	{
 		Console.WriteLine("正在更新文件 ...");
 		repo.Reset(ResetMode.Hard, @"origin/master");
+		Process.Start(workdir + "\\NSCN_Updater.exe");
+		Environment.Exit(0);
 	}
 	else
 	{
@@ -97,4 +110,4 @@ if (!File.Exists(workdir + "\\ns_startup_args_dedi.txt"))
 	File.Copy(workdir + "\\persist\\ns_startup_args_dedi.txt", workdir + "\\ns_startup_args_dedi.txt");
 }
 
-Process p = Process.Start(workdir + "\\NorthstarLauncher.exe");
+Process.Start(workdir + "\\NorthstarLauncher.exe");
