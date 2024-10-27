@@ -110,4 +110,4 @@ if (!File.Exists(workdir + "\\ns_startup_args_dedi.txt"))
 	File.Copy(workdir + "\\persist\\ns_startup_args_dedi.txt", workdir + "\\ns_startup_args_dedi.txt");
 }
 
-Process.Start(workdir + "\\NorthstarLauncher.exe");
+Process.Start(workdir + "\\NorthstarLauncher.exe", "-updated");
