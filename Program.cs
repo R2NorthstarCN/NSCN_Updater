@@ -50,6 +50,13 @@ using (var repo = new Repository(path))
 {
 	if (repair)
 	{
+		try
+		{
+			Directory.Delete(workdir + "\\R2Northstar\\mods\\Northstar.Client", true);
+			Directory.Delete(workdir + "\\R2Northstar\\mods\\Northstar.Custom", true);
+			Directory.Delete(workdir + "\\R2Northstar\\mods\\Northstar.CustomServers", true);
+		}
+		catch { }
 		repo.Reset(ResetMode.Hard, @"origin/master");
 		Console.WriteLine("修复完毕！");
 		Thread.Sleep(2000);
