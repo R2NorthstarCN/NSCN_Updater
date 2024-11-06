@@ -1,8 +1,21 @@
 ﻿using LibGit2Sharp;
 using System.Diagnostics;
+using System.Linq.Expressions;
 
 bool repair = false;
 string workdir = string.Empty;
+
+static void ForceDeleteDirectory(string path)
+{
+	var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
+
+	foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+	{
+		info.Attributes = FileAttributes.Normal;
+	}
+
+	directory.Delete(true);
+}
 
 for (int i = 0; i < args.Length; i++)
 {
@@ -35,7 +48,26 @@ if (workdir == string.Empty)
 var path = workdir;
 var url = "https://gitee.com/st0n1e/NSCN_Launcher.git";
 
-if (!Repository.IsValid(path))
+
+try
+{
+	if (!Repository.IsValid(path))
+	{
+		Repository.Init(path);
+	}
+
+}
+catch
+{
+	string temp_repo = Path.GetTempPath() + "NSCN_Temp";
+	Directory.CreateDirectory(temp_repo);
+	Repository.Init(temp_repo);
+	Configuration.BuildFrom(temp_repo).Add("safe.directory", path.Replace("\\", "/"), ConfigurationLevel.Global);
+	ForceDeleteDirectory(temp_repo);
+
+	Repository.Init(path);
+}
+finally
 {
 	if (!File.Exists(workdir + "\\Titanfall2.exe"))
 	{
@@ -43,8 +75,10 @@ if (!Repository.IsValid(path))
 		Console.WriteLine("请确认是否已将本程序放置在了正确的目录下");
 		Environment.Exit(1);
 	}
-	Repository.Init(path);
+
 }
+
+
 
 using (var repo = new Repository(path))
 {
