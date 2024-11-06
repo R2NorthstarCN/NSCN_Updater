@@ -1,6 +1,5 @@
 ﻿using LibGit2Sharp;
 using System.Diagnostics;
-using System.Linq.Expressions;
 
 bool repair = false;
 string workdir = string.Empty;
@@ -75,7 +74,6 @@ finally
 		Console.WriteLine("请确认是否已将本程序放置在了正确的目录下");
 		Environment.Exit(1);
 	}
-
 }
 
 
