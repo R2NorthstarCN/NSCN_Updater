@@ -25,7 +25,7 @@ if (workdir == string.Empty)
 		var filename = Path.GetFileName(file);
 		File.Copy(file, temp + "\\" + filename, true);
 	}
-	string sub_args = "-workdir " + workdir;
+	string sub_args = "-workdir \"" + workdir + "\"";
 	if (repair)
 		sub_args += " -repair";
 	Process.Start(temp + "\\NSCN_Updater.exe", sub_args);
