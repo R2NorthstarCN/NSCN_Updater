@@ -61,6 +61,13 @@ catch
 	string temp_repo = Path.GetTempPath() + "NSCN_Temp";
 	Directory.CreateDirectory(temp_repo);
 	Repository.Init(temp_repo);
+
+	var config_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gitconfig");
+	if (!File.Exists(config_path))
+	{
+		File.Create(config_path).Dispose();
+	}
+
 	Configuration.BuildFrom(temp_repo).Add("safe.directory", path.Replace("\\", "/"), ConfigurationLevel.Global);
 	ForceDeleteDirectory(temp_repo);
 
